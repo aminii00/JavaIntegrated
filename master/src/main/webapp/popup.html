@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<script type = "text/javascript">
+ if(obj.checked==true){
+	 var expireDate = new Date();
+	 expireDate.setMonth(expireDate.getMonth()+1);
+	 document.cookie = "noShowPop" + "true" + ";path=/; expires=" +
+	                                               expireDate.toGMTString();
+	 window.close();
+	 
+ }
+</script>
+</head>
+<body>
+<br><br><br><br><br><br><br>
+<form>
+ <input type=checkbox onClick="setPopUpStart(this)">오늘 더 이상 팝업창 띄우지 않기 
+</form>
+</body>
+</html>
