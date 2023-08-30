@@ -27,7 +27,7 @@ import org.apache.commons.io.FileUtils;
 public class BoardController7 extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private static String ARTICLE_IMAGE_REPO = "C:\\board\\article_image";
-	   // ���                     �̹��� ���� ���� ���
+	   // 상수                     이미지 저장 폴더 경로
 	BoardService boardService;
 	ArticleVO articleVO;
 	public void init(ServletConfig config) throws ServletException {
@@ -43,14 +43,14 @@ public class BoardController7 extends HttpServlet {
 		doHandle(request,response);
 	}
 	private void doHandle(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		String nextPage = "";  //" "�����̽��� ġ�� ���߿� �����߻�Ȯ�� ����
+		String nextPage = "";  //" "스페이스바 치면 나중에 오류발생확률 높음
 		request.setCharacterEncoding("utf-8");
 		response.setContentType("text/html;charset=utf-8");
 		HttpSession session;
-		String action = request.getPathInfo(); //2��° ���� / ���ʿ��� ������ �׼��� ����
+		String action = request.getPathInfo(); //2번째 매핑 / 앞쪽에서 보내준 액션을 받음
 		System.out.println("action:"+action);
 		try {
-			List<ArticleVO> articlesList = new ArrayList<ArticleVO>(); //�迭���»��ƴϰ� ����Ʈ�� ����Ϸ��� �ϴ°���
+			List<ArticleVO> articlesList = new ArrayList<ArticleVO>(); //배열형태사용아니고 리스트형 사용하려고 하는것임
 			if(action == null) {
 				String _section = request.getParameter("section");
 				String _pageNum =request.getParameter("pageNum");
@@ -64,7 +64,7 @@ public class BoardController7 extends HttpServlet {
 				articlesMap.put("pageNum", pageNum);
 				request.setAttribute("articlesMap", articlesMap);
 				nextPage = "/board7/listArticles.jsp";
-				// �ؽ�Ʈ�������� ����ó�� �Ѱ���(����Ʈ �ּҸ� �־ ������)
+				// 넥스트페이지는 디스패처로 넘겨줌(리스트 주소를 넣어서 포워드)
 			}else if(action.equals("/listArticles.do")) {
 				String _section = request.getParameter("section");
 				String _pageNum =request.getParameter("pageNum");
@@ -78,39 +78,39 @@ public class BoardController7 extends HttpServlet {
 				articlesMap.put("pageNum", pageNum);
 				request.setAttribute("articlesMap", articlesMap);
 				nextPage = "/board7/listArticles.jsp";
-				// �ؽ�Ʈ�������� ����ó�� �Ѱ���(����Ʈ �ּҸ� �־ ������)
+				// 넥스트페이지는 디스패처로 넘겨줌(리스트 주소를 넣어서 포워드)
 
-			}else if(action.equals("/articleForm.do")) { //���
-				nextPage = "/board7/articleForm.jsp"; //�긦 ������
+			}else if(action.equals("/articleForm.do")) { //얘는
+				nextPage = "/board7/articleForm.jsp"; //얘를 열어줌
 
 			}else if(action.equals("/addArticle.do")) {
-				int articleNO = 0; //�θ� 0�̶�
+				int articleNO = 0; //부모가 0이라서
 				Map<String, String> articleMap = upload(request, response);
 				String title = articleMap.get("title");
 				String content = articleMap.get("content");
 				String imageFileName = articleMap.get("imageFileName");
 
 				articleVO.setParentNO(0);
-				articleVO.setId("aminii"); //�� db�� �ִ� ������
+				articleVO.setId("aminii"); //내 db에 있는 것으로
 				articleVO.setTitle(title);
 				articleVO.setContent(content);
 				articleVO.setImageFileName(imageFileName);
-				articleNO = boardService.addArticle(articleVO); //����Ұ�ü�� ������ �� �� �ּҸ� �־ ȣ��
-				//9 /�ٷ� int�� �������� �̰��� ������ �� ���� ������ Service�� �־ �������°� ����
+				articleNO = boardService.addArticle(articleVO); //저장소객체에 저장한 후 그 주소를 넣어서 호출
+				//9 /바로 int로 가져오면 이값만 가져올 수 있음 때문에 Service에 넣어서 가져오는게 좋음
 				if(imageFileName != null && imageFileName.length() !=0) {
 					//temp
 					File srcFile = new File(ARTICLE_IMAGE_REPO + "\\" + "temp" + "\\" + imageFileName);
 					File destDir = new File(ARTICLE_IMAGE_REPO + "\\" + articleNO);
                                                //9
-					destDir.mkdirs(); //articleNO�� �̰��� �� ���������� ���ϻ���
-					FileUtils.moveFileToDirectory(srcFile, destDir, true);  //temp�ȿ� �ִ� ������ articleNO ���Ϸ� �Ѿ
+					destDir.mkdirs(); //articleNO는 이것을 꼭 사용해줘야함 파일생성
+					FileUtils.moveFileToDirectory(srcFile, destDir, true);  //temp안에 있는 파일이 articleNO 파일로 넘어감
 				}
 				PrintWriter pw = response.getWriter();
-				pw.print("<script>" + "alert('������ �߰��߽��ϴ�.');"
+				pw.print("<script>" + "alert('새글을 추가했습니다.');"
 						+ " location.href='"
 						+ request.getContextPath()
 						+ "/board007/listArticles.do';" + "</script>");
-				return;	
+				return;		
 			
 			}else if(action.equals("/viewArticle.do")){
 				String articleNO = request.getParameter("articleNO");
@@ -126,24 +126,24 @@ public class BoardController7 extends HttpServlet {
 				String content = articleMap.get("content");
 				String imageFileName = articleMap.get("imageFileName");
 				articleVO.setParentNO(0);
-				articleVO.setId("aminii");  //�� db�� �ִ� ������
+				articleVO.setId("aminii");  //내 db에 있는 것으로
 				articleVO.setTitle(title);
 				articleVO.setContent(content);
 				articleVO.setImageFileName(imageFileName);
 				boardService.modArticle(articleVO);
-				if(imageFileName != null && imageFileName.length() !=0) { //�����̹����� �ٸ��̹����� ����
+				if(imageFileName != null && imageFileName.length() !=0) { //기존이미지를 다른이미지로 수정
 					//temp
 					String originalFileName = articleMap.get("originalFileName");
 					File srcFile = new File(ARTICLE_IMAGE_REPO + "\\" + "temp" + "\\" + imageFileName);
 					File destDir = new File(ARTICLE_IMAGE_REPO + "\\" + articleNO);
                                                //9
-					destDir.mkdirs(); //articleNO�� �̰��� �� ���������� ���ϻ���
-					FileUtils.moveFileToDirectory(srcFile, destDir, true); //temp�ȿ� �ִ� ������ articleNO ���Ϸ� �Ѿ
+					destDir.mkdirs(); //articleNO는 이것을 꼭 사용해줘야함 파일생성
+					FileUtils.moveFileToDirectory(srcFile, destDir, true); //temp안에 있는 파일이 articleNO 파일로 넘어감
 					File oldFile = new File(ARTICLE_IMAGE_REPO + "\\" + articleNO + "\\" + originalFileName);
-					oldFile.delete(); //�����̹��� ����
+					oldFile.delete(); //기존이미지 삭제
 				}
 				PrintWriter pw = response.getWriter();
-				pw.print("<script>" + "alert('���� �����߽��ϴ�.');"
+				pw.print("<script>" + "alert('글을 수정했습니다.');"
 						+ " location.href='"
 						+ request.getContextPath()
 						+ "/board007/viewArticle.do?articleNO=" + articleNO + "';" + "</script>");
@@ -160,7 +160,7 @@ public class BoardController7 extends HttpServlet {
 					}
 				}
 				PrintWriter pw = response.getWriter();
-				pw.print("<script>" + "alert('���� �����߽��ϴ�.');"
+				pw.print("<script>" + "alert('글을 삭제했습니다.');"
 						+ " location.href='"
 						+ request.getContextPath()
 						+ "/board007/listArticles.do';" + "</script>");
@@ -184,16 +184,16 @@ public class BoardController7 extends HttpServlet {
 				articleVO.setContent(content);
 				articleVO.setImageFileName(imageFileName);
 				int articleNO = boardService.addReply(articleVO);
-				if(imageFileName != null && imageFileName.length() !=0) { //�����̹����� �ٸ��̹����� ����
+				if(imageFileName != null && imageFileName.length() !=0) { //기존이미지를 다른이미지로 수정
 					//temp
 					File srcFile = new File(ARTICLE_IMAGE_REPO + "\\" + "temp" + "\\" + imageFileName);
 					File destDir = new File(ARTICLE_IMAGE_REPO + "\\" + articleNO);
                                                //9
-					destDir.mkdirs(); //articleNO�� �̰��� �� ���������� ���ϻ���
-					FileUtils.moveFileToDirectory(srcFile, destDir, true); //temp�ȿ� �ִ� ������ articleNO ���Ϸ� �Ѿ
+					destDir.mkdirs(); //articleNO는 이것을 꼭 사용해줘야함 파일생성
+					FileUtils.moveFileToDirectory(srcFile, destDir, true); //temp안에 있는 파일이 articleNO 파일로 넘어감
 				}
 				PrintWriter pw = response.getWriter();
-				pw.print("<script>" + "alert('����� �����߽��ϴ�.');"
+				pw.print("<script>" + "alert('답글을 수정했습니다.');"
 						+ " location.href='"
 						+ request.getContextPath()
 						+ "/board007/viewArticle.do?articleNO=" + articleNO + "';" + "</script>");
@@ -203,7 +203,7 @@ public class BoardController7 extends HttpServlet {
 				nextPage = "/board7/listArticles.jsp";
 			}
 			
-			RequestDispatcher dispatch = request.getRequestDispatcher(nextPage); //������ �̵�(������)
+			RequestDispatcher dispatch = request.getRequestDispatcher(nextPage); //페이지 이동(포워드)
 			dispatch.forward(request, response);
 			
 		}catch(Exception e) {
@@ -212,53 +212,53 @@ public class BoardController7 extends HttpServlet {
 	}
 
 	private Map<String, String> upload(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// ������Ʈ�� �޾Ƽ� ������Ʈ ��ü�� �� ����
+		// 리퀘스트에 받아서 리퀘스트 객체를 준 것임
 		Map<String, String> articleMap = new HashMap<String, String>();
-		//Map�� ��Ʈ��,��Ʈ�� ���׸���                                    
+		//Map의 스트링,스트링 제네릭형                                    
 		String encoding = "utf-8";
 		File currentDirPath = new File(ARTICLE_IMAGE_REPO);
-		//���ϰ�ü�� ������
+		//파일객체는 파일형
 		DiskFileItemFactory factory = new DiskFileItemFactory();
-		//setRepository ������ ����� ��� setSizeThreshold �ִ�뷮ó��->�ΰ� �޼ҵ� ����Ϸ��� DiskFileItemFactory ���
+		//setRepository 실질적 저장소 사용 setSizeThreshold 최대용량처리->두개 메소드 사용하려고 DiskFileItemFactory 사용
 		factory.setRepository(currentDirPath);
 		factory.setSizeThreshold(1024 * 1024);
 		ServletFileUpload upload = new ServletFileUpload(factory);
 		try {
 			List items = upload.parseRequest(request);
-			//ServletFileUpload�� parseRequest�޼ҵ� ȣ��
-			//parseRequest�� �߶� ������ Ű�� ���� �迭���·� ������. ������ ����Ʈ��
+			//ServletFileUpload의 parseRequest메소드 호출
+			//parseRequest가 잘라서 각각의 키의 값을 배열형태로 저장함. 때문에 리스트형
 			for(int i=0; i<items.size(); i++) {
-				FileItem fileItem = (FileItem) items.get(i); //0�ε������� for�� ��
-				//items�� request��ü �̹Ƿ� FileItem������ ĳ��Ʈ��ȯ
-				if(fileItem.isFormField()) { //�ؽ�Ʈ���� ���
+				FileItem fileItem = (FileItem) items.get(i); //0인덱스부터 for문 돔
+				//items는 request객체 이므로 FileItem형으로 캐스트변환
+				if(fileItem.isFormField()) { //텍스트인지 물어봄
 					System.out.println(fileItem.getFieldName() + "=" + fileItem.getString(encoding));
 					System.out.println("??");
 					articleMap.put(fileItem.getFieldName(), fileItem.getString(encoding));
-					//Map���� put���� ����         title                  temp
+					//Map에는 put으로 저장         title                  temp
 				}else {
-					System.out.println("�Ķ�����̸�:"+fileItem.getFieldName()); //imagaFileName
-					System.out.println("�����̸�:"+fileItem.getName()); //temp.jpg
-					System.out.println("����ũ��:"+fileItem.getSize()+"bytes"); //���ϻ�����(40)
+					System.out.println("파라미터이름:"+fileItem.getFieldName()); //imagaFileName
+					System.out.println("파일이름:"+fileItem.getName()); //temp.jpg
+					System.out.println("파일크기:"+fileItem.getSize()+"bytes"); //파일사이즈(40)
 					if(fileItem.getSize() > 0) {
 						int idx = fileItem.getName().lastIndexOf("\\");
-						//C:\Users\Administrator\Desktop/temp.jpg �����ϱ� ������
+						//C:\Users\Administrator\Desktop/temp.jpg 없으니까 내려옴
 						if(idx == -1) {
 							idx = fileItem.getName().lastIndexOf("/");
-							//C:\Users\Administrator\Desktop/temp.jpg /�տ� �ڸ��� temp.jpg�� ����
+							//C:\Users\Administrator\Desktop/temp.jpg /앞에 자르고 temp.jpg만 남김
 						}
 						String fileName = fileItem.getName().substring(idx+1);
 						articleMap.put(fileItem.getFieldName(), fileName);
 			             //imageFileName, temp.jpg
 						File uploadFile = new File((currentDirPath)+"\\temp\\"+fileName);
-						//�̹��������� �־ ���ϰ�ü ����
-						fileItem.write(uploadFile); //uploadFile �־ ���ֱ�
+						//이미지저장경로 넣어서 파일객체 생성
+						fileItem.write(uploadFile); //uploadFile 넣어서 써주기
 					} //end if
 				} //end if
 			} //end for
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
-		return articleMap; //uploadȣ���� ������ ��ȯ
+		return articleMap; //upload호출한 곳으로 반환
 	}
 
 }
