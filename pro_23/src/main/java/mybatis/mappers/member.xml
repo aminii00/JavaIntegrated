@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="mapper.member"> <!-- 디렉토리 -->
+	<resultMap id="memResult" type="memberVO">
+		<result property="id" column="id" /> <!-- //property는 memberVO에서 필드에서 맞는지 아닌지 찾아야한다 -->
+		<result property="pwd" column="pwd" />
+		<result property="name" column="name" />
+		<result property="email" column="email" />
+		<result property="joindate" column="joindate" />
+	</resultMap>
+	
+	
+	          <!--  파일 -->
+	<select id="selectAllMemberList" resultMap="memResult">
+<![CDATA[ 
+select * from t_member order by joinDate desc
+]]><!-- 확실하게 sql구문으로 만들기위해서 , sevletex의 t_member 테이블 -->
+	</select>
+	
+	
+	
+	
+  
+	<select id="selectName" resultType="String"> <!-- memberVO한번만 던질때 , 위에는 여러개를 던저서 resultMAP이 된다> -->
+<![CDATA[
+select name from t_member
+where id = 'aminii'
+]]> memberDAO로 들고 넘어감
+	</select>
+	
+
+	<select id="selectPwd" resultType="String">
+<![CDATA[
+select pwd from t_member 
+where id = 'aminii'
+]]>
+	</select>
+	
+	
+
+
+	<select id="selectMemberById" resultType="memberVO"
+		parameterType="String">
+<![CDATA[
+select * from t_member
+where 
+id=#{id}
+]]>
+	</select>
+
+
+	<select id="selectMemberByPwd" resultMap="memResult"
+		parameterType="String">
+<![CDATA[
+select * from t_member
+where 
+pwd=#{pwd}
+]]>
+	</select>
+
+	
+
+	<insert id="insertMember" parameterType="memberVO">
+<![CDATA[
+insert into t_member(id,pwd,name,email)
+values(#{id},#{pwd},#{name},#{email})
+]]>
+</insert>
+
+<insert id="insertMember2" parameterType="java.util.Map">
+<![CDATA[
+insert into t_member(id,pwd,name,email)
+values(#{id},#{pwd},#{name},#{email})
+]]>
+
+</insert>
+	
+<update id="updateMember" parameterType="memberVO">
+<![CDATA[
+update t_member
+set pwd=#{pwd}, name=#{name}, email=#{email}
+where 
+id=#{id}
+
+]]>
+</update>
+
+<delete id="deleteMember" parameterType="String">
+<![CDATA[
+delete from t_member
+where 
+id=#{id}
+]]>
+</delete>
+	
+<select id="searchMember" parameterType="memberVO"
+		resultMap="memResult">
+<![CDATA[
+select * from t_member
+]]>
+		<where>
+			<if test="name != '' and name != null">
+				name=#{name}
+			</if>
+			<if test="email !='' and email != null">
+				and email =#{email}
+			</if>
+		</where>
+		order by joinDate desc
+	</select>
+
+<!-- <select id ="foreachSelect" resultMap="memResult" parameterType ="java.util.Map">
+<![CDATA[
+select * from t_member
+]]>
+
+where name in
+<foreach item ="item" collection="list" open="("separator=","close=")" >
+#{item}
+</foreach>
+order by joindate desc
+</select>
+ -->
+<insert id ="foreachInsert" parameterType="java.util.Map">
+<foreach item="item" collection="list" open="INSERT ALL" separator=" "
+close="SELECT * FROM DUAL">
+INTO t_member(id,pwd,name,email)
+VALUES (#{item.id},
+        #{item.pwd},
+        #{item.namae},
+        #{item.email}
+)
+</foreach>
+</insert>
+<select id ="selectLike" resultMap ="memResult" parameterType ="String">
+<![CDATA[
+ select * from t_member
+ where
+ name like '%' || #{name} || '%'
+]]>
+</select>
+</mapper>	
+
+
+
+
+
+
+
+
